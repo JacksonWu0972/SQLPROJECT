@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css"> <!-- 這裡連接CSS文件 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&display=swap">
+
+    <title>Smart Meter</title>
+</head>
+<body>
+    <div>
+        <form>
+            <label for="username">Username:</label>
+            <input type="text" id="username" placeholder="Enter your username...">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password...">
+
+            <button type="button" onclick="performLogin()">Login</button>
+        </form>
+    </div>
+
+    <script>
+        function performLogin() {
+            // 获取用户输入的值
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // 在这里添加登录条件的相应代码
+            // 这里简单地检查用户名和密码是否不为空
+            if (username !== '' && password !== '') {
+                // 导向到 second.html 并附带用户名参数
+                window.location.href = `second.html?username=${encodeURIComponent(username)}`;
+                return false; // 阻止表单的默认提交行为
+            } else {
+                // 如果未满足登录条件，显示警告
+                alert("请输入有效的用户名和密码。");
+                return false; // 阻止表单的默认提交行为
+            }
+        }
+    </script>
+</body>
+</html>
