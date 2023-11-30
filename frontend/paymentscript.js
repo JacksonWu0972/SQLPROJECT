@@ -33,7 +33,7 @@ async function connectToMSSQL(username) {
     };
 
     try {
-        const response = await fetch(' https://f619-49-158-79-5.ngrok-free.app/processPayment', {
+        const response = await fetch('http://localhost:3000/processPayment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

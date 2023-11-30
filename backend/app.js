@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const sql = require('mssql/msnodesqlv8'); // 或者使用 'tedious'，根據你的選擇
+const sql = require('mssql/msnodesqlv8');
 const cors = require('cors');
 
 const app = express();
@@ -8,7 +8,7 @@ const port = 3000;
 app.use(cors({ origin: '*' }));
 
 app.use(bodyParser.json());
-app.options('*', cors()); // 將 OPTIONS 請求路由到 CORS 中間件
+app.options('*', cors());
 
 const config = {
     server: 'JACKSONWU\\SQLEXPRESS',
@@ -42,7 +42,7 @@ app.post('/processPayment', async (req, res) => {
     }
 });
 
-
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+// 修改此处，使服务器监听所有可用的网络接口
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Server is running at http://0.0.0.0:${port}`);
 });
