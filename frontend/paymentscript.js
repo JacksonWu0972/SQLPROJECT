@@ -1,4 +1,20 @@
-document.addEventListener('DOMContentLoaded', async function () {
+async function getDynamicUrl() {
+    try {
+        const response = await fetch('/api/getDynamicUrl');
+        const data = await response.json();
+
+        if (data && data.url) {
+            return data.url;
+        } else {
+            throw new Error('Invalid response from server');
+        }
+    } catch (error) {
+        console.error('Error fetching dynamic URL:', error);
+        throw error;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('username');
     const welcomeMessage = document.getElementById('welcomeMessage');
@@ -9,17 +25,25 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const paymentForm = document.getElementById('paymentForm');
     if (paymentForm) {
-        paymentForm.addEventListener('submit', async function (event) {
-            event.preventDefault(); // Prevent the default form submission
+        paymentForm.addEventListener('submit', function (event) {
+            event.preventDefault();
 
-            // Connect to MSSQL before payment processing
-            await connectToMSSQL(username);
+            // 使用 Promise 解决异步问题
+            getDynamicUrl().then((dynamicUrl) => {
+                return connectToMSSQL(dynamicUrl, username);
+            }).then(() => {
+                // 在这里处理后续异步操作，如果有的话
+            }).catch((error) => {
+                console.error('Error in form submission:', error);
+                alert('An error occurred. Please try again.');
+                // 返回一个 rejected 的 Promise 中止 Promise 链的执行
+                return Promise.reject(error);
+            });
         });
     }
 });
 
-async function connectToMSSQL(username) {
-   // const username = document.getElementById('username').value;
+async function connectToMSSQL(url, username) {
     const cardNumber = document.getElementById('cardNumber').value;
     const expiryDate = document.getElementById('expiryDate').value;
     const cvv = document.getElementById('cvv').value;
@@ -33,7 +57,7 @@ async function connectToMSSQL(username) {
     };
 
     try {
-        const response = await fetch('http://localhost:3000/processPayment', {
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -52,10 +76,10 @@ async function connectToMSSQL(username) {
     } catch (err) {
         console.error('Error connecting to server:', err);
         alert('Connection to server failed!');
+        // 返回一个 rejected 的 Promise 中止 Promise 链的执行
+        return Promise.reject(err);
     }
 }
-
-// 保留其他代码不变
 
 function displaySuccessMessage() {
     const successMessageContainer = document.getElementById('successMessage');
@@ -63,6 +87,6 @@ function displaySuccessMessage() {
     if (successMessageContainer) {
         successMessageContainer.textContent = 'Payment successful! Thank you for your purchase.';
     } else {
-        console.log('Payment successful! Thank you for your purchase.');
+        console.log('Payment unsuccessful! Thank you for your purchase.');
     }
 }

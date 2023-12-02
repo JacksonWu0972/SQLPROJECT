@@ -1,14 +1,15 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const sql = require('mssql/msnodesqlv8'); // 或者使用 'tedious'，根據你的選擇
+const sql = require('mssql/msnodesqlv8');
 const cors = require('cors');
 
 const app = express();
-const port = 3000;
-app.use(cors({ origin: '*' }));
+const port = 8080;
 
+let dynamicEndpoint = '/processPayment'; // 初始端點，可以根據需要修改
+
+app.use(cors({ origin: '*' }));
 app.use(bodyParser.json());
-app.options('*', cors()); // 將 OPTIONS 請求路由到 CORS 中間件
 
 const config = {
     server: 'JACKSONWU\\SQLEXPRESS',
@@ -19,14 +20,14 @@ const config = {
     },
 };
 
-app.post('/processPayment', async (req, res) => {
+app.post(dynamicEndpoint, async (req, res) => {
     const { username, cardNumber, expiryDate, cvv } = req.body;
 
     try {
         const pool = await new sql.ConnectionPool(config).connect();
         const request = pool.request();
 
-        const query = 'INSERT INTO PaymentTable (username,cardNumber,expiryDate, cvv) VALUES (@username,@cardNumber,@expiryDate, @cvv)';
+        const query = 'INSERT INTO PaymentTable (username, cardNumber, expiryDate, cvv) VALUES (@username, @cardNumber, @expiryDate, @cvv)';
         request.input('username', sql.NVarChar, username);
         request.input('cardNumber', sql.NVarChar, cardNumber);
         request.input('expiryDate', sql.NVarChar, expiryDate);
@@ -42,7 +43,14 @@ app.post('/processPayment', async (req, res) => {
     }
 });
 
-
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+// 動態更改端點的路由
+app.post('/updateEndpoint', (req, res) => {
+    const { newEndpoint } = req.body;
+    dynamicEndpoint = newEndpoint;
+    res.status(200).json({ success: true, message: 'Endpoint updated successfully!' });
 });
+
+/*app.listen(port, '140.136.228.77', () => {
+    console.log(`Server is running at http://140.136.228.77:${port}`);
+});
+*/
